@@ -1,0 +1,26 @@
+azure-common==1.1.28
+azure-storage-blob==2.1.0
+azure-storage-common==2.1.0
+certifi==2022.9.24
+cffi==1.15.1
+charset-normalizer==2.1.1
+cryptography==38.0.2
+et-xmlfile==1.1.0
+idna==3.4
+linecache2==1.0.0
+numpy==1.23.3
+openpyxl==3.0.10
+pandas==1.5.0
+pycparser==2.21
+pyodbc==4.0.34
+python-dateutil==2.8.2
+python-dotenv==0.21.0
+pytz==2022.4
+requests==2.28.1
+six==1.16.0
+traceback2==1.4.0
+unittest2==1.1.0
+urllib3==1.26.12
+apache-airflow==2.4.1
+coverage==6.5.0
+# coverage==6.5.0

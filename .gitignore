@@ -1,0 +1,10 @@
+__pycache__/
+project/
+trello/
+tranform_data/
+*.cfg
+*.env
+*.ipynb
+src/ingest/webhook.py
+logs/
+plugins/

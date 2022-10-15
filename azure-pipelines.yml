@@ -1,0 +1,99 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+resources:
+- repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+# variables:
+#   repository: 'duongnt1807/duongnt63'
+#   dockerfilePath: '$(Build.SourcesDirectory)/app/Dockerfile'
+#   tag: latest
+
+stages:
+- stage: SetupEnvAndTestCode
+  displayName: Setup env and test image
+  jobs:
+  - job: Setup
+    displayName: Setup env
+    steps: 
+    - checkout: self
+      persistCredentials: true
+  - job: Test
+    displayName: Test code
+    strategy:
+      matrix:
+        Python38:
+          python.version: '3.8'
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(python.version)'
+      displayName: 'Use Python $(python.version)'
+
+    - script: pip install -r requirements.txt
+      displayName: Load Python Dependencies    
+    - script: |
+        python -m unittest discover
+      displayName: 'Run Python Unit Tests for library code'  
+      env:
+        my_user_id: $(my_user_id)
+        APIkey: $(APIkey)
+        APItoken: $(APItoken)
+        server: $(server)
+        pwd: $(pwd)
+        account_name: $(account_name)
+        account_key: $(account_key)
+        container_name: $(container_name) 
+    - script: |
+        pip install pytest pytest-azurepipelines
+        pip install pytest-cov
+        echo -e "[run]\nomit = */db/*" > .coveragerc && pytest --doctest-modules --junitxml=junit/test-results.xml --cov-config=.coveragerc --cov=. --cov-report=xml
+      env:
+        my_user_id: $(my_user_id)
+        APIkey: $(APIkey)
+        APItoken: $(APItoken)
+        server: $(server)
+        pwd: $(pwd)
+        account_name: $(account_name)
+        account_key: $(account_key)
+        container_name: $(container_name) 
+- stage: BuildImage
+  displayName: Build Docker image and register on Docker Hub
+  jobs:
+  - job:
+    steps:
+    - task: Docker@2
+      displayName: Login to Docker Hub
+      inputs:
+        command: login
+        containerRegistry: duongnt63
+      
+    - task: Docker@2
+      displayName: Build and Push
+      inputs:
+        command: buildAndPush
+        containerRegistry: duongnt63
+        repository: 'duongnt1807/duongnt63'
+        dockerfilePath: '$(Build.SourcesDirectory)/app/Dockerfile'
+        tags: latest
+
+
+  # - task: ArchiveFiles@2
+  #   inputs:
+  #     rootFolderOrFile: '$(Build.Repository.LocalPath)/'
+  #     includeRootFolder: false
+  #     archiveType: 'zip'
+  #     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+  #     replaceExistingArchive: true
+
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     ArtifactName: 'DatabricksBuild'
